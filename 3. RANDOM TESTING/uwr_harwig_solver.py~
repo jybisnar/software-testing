@@ -1,0 +1,49 @@
+#uwe_hartwig solution https://discussions.udacity.com/t/3-problem-set-sudoku-testing/34349
+import copy
+import sys
+
+def check_sudoku (grid):
+    for i in range(len(grid)):
+        col_size = len(grid[i])
+        if col_size != 9: # illformed
+            return None
+
+    cols = []
+    for j in range(col_size):
+        c = grid[i][j] 
+        if not c == 0 and c in cols:
+            return False
+        cols.append(c) 
+                
+    for c in range(9):
+        cols = []
+        for r in range(9):
+            n = grid[r][c]
+            if n != 0 and n in cols:
+               return False
+            cols.append(n)
+    return True
+
+def solve_sudoku(__grid):
+    state = check_sudoku(__grid)
+    if state is None or state is False:
+        return state
+
+    new_grid = copy.deepcopy(__grid)
+    # new_grid = grid
+    
+    for i in range(9):
+        single_row = new_grid[i]
+        for j in range(9):
+            single_column = [x for x in [new_grid[y][j] for y in range(9)]]
+            if new_grid[i][j] == 0:
+                # possible values 
+                ns = [x for x in range(1, 10) if x not in single_row and x not in single_column]
+                for n in ns:
+                    new_grid[i][j] = n
+                    new = solve_sudoku(new_grid)
+                    if new is not False:
+                        return new
+                return False
+    return new_grid
+

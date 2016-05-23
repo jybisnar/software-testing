@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+#Fuzzer for testing shotwell photo manager
+
+import math
+import random
+import string
+import subprocess
+import time
+import glob;
+
+
+file_list=glob.glob('img/*');
+print "File list"
+print file_list
+
+
+#Application to test
+app = "shotwell"
+
+
+fuzz_output = "fuzzed_output"
+
+fuzz_factor = 50
+num_tests = 250
+verbose = False
+
+
+crashes = 0
+for i in range(num_tests):
+	file_choice = random.choice(file_list)
+	
+	buf= bytearray(open(file_choice, 'rb').read())
+	
+	#5-line fuzzer from Charlie MIller's "Babysitting an Army of Monkeys"
+	#---------------------------------------------------------
+	num_writes = random.randrange(math.ceil((float(len(buf)) / fuzz_factor ))) +1
+		
+	for j in range(num_writes):
+		rbyte = random.randrange(256)
+		rn = random.randrange(len(buf))
+		buf[rn] = "%c"%(rbyte)
+		
+	#----------------------------------------------------------
+	
+	open(fuzz_output, 'wb').write(buf)
+	
+	#open application with mutation
+	process = subprocess.Popen([app,fuzz_output])
+	
+	#see what happens
+	time.sleep(1)
+	crashed=process.poll()
+	
+	#process.terminate()
+	
+	if crashed:
+		#renaming input file
+		print "process crashed with input file " + file_choice
+		crashes += 1
+	else:
+		if verbose:
+			print "Test", i, "file "+ file_choice + " OK"
+		process.terminate()
+
+print "Total crashes " + crashes
+print "All tests OK" + str(num_tests - crashes)

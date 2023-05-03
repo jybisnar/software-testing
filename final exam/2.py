@@ -44,7 +44,6 @@
 # The resulting list should be the return value of
 # your random_test function.
 
-
 import array
 import random
 
@@ -100,13 +99,13 @@ import sys
 def random_test():
     q = Queue(100)
     ret = list()
-    for i in range(100):
+    for i in range(10000):
         bias = 0.2
         if i%2 == 0:
             bias = -0.2
         if random.random() > 0.5 + bias:
             try:
-                inp = random.randint(-sys.maxint+1,sys.maxint)
+                inp = random.randint(-sys.maxsize,sys.maxsize)
                 q.enqueue(inp)
                 ret.append((inp, 0))
             except:
@@ -121,9 +120,8 @@ def random_test():
                 ret.append(('dq', 0))
             except:
                 ret.append(('dq', 1))
-    print ret
+    
+    print(ret)
     return ret
 
-#random_test()
-# Write a random tester for the Queue class
 random_test()
